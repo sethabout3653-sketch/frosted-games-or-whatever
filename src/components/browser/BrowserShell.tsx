@@ -223,7 +223,22 @@ export function BrowserShell() {
 }
 
 function displayUrl(tab: Tab) {
-  return tab.kind === "new" ? "" : tab.url;
+  if (tab.kind !== "web" || !tab.url) return "";
+  let url = tab.url;
+  if (url.startsWith("/scramjet/")) {
+    try {
+      url = decodeURIComponent(url.slice("/scramjet/".length));
+    } catch {
+      // ignore
+    }
+  } else if (url.startsWith("/~/scramjet/")) {
+    try {
+      url = decodeURIComponent(url.slice("/~/scramjet/".length));
+    } catch {
+      // ignore
+    }
+  }
+  return tab.kind === "new" ? "" : url;
 }
 
 function hostOf(url: string) {

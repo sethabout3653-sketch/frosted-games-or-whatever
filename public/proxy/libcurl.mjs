@@ -3428,4 +3428,4 @@ var libcurl = function() {
     try {
       var sock = getSocketFromFD(fd);
       var info = getSocketAddress(addr, addrlen);
-      sock.
+      s

@@ -3,7 +3,7 @@
  * from an effect or an event handler, never during render/SSR.
  */
 
-export const SCRAMJET_PREFIX = "/~/scramjet/";
+export const SCRAMJET_PREFIX = "/scramjet/";
 export const WISP_SERVERS = [
   "wss://wisp.mercurywork.shop/",
   "wss://wisp.ghosty-xyz.workers.dev/",
@@ -12,6 +12,11 @@ export const WISP_SERVERS = [
 export const DEFAULT_WISP = WISP_SERVERS[0]!;
 
 type AnyRecord = Record<string, unknown>;
+
+// Polyfill Headers iterator for older environments or specific Scramjet versions
+if (typeof Headers !== "undefined" && !Headers.prototype[Symbol.iterator]) {
+  Headers.prototype[Symbol.iterator] = Headers.prototype.entries;
+}
 
 let scriptPromise: Promise<void> | null = null;
 let controllerPromise: Promise<AnyRecord> | null = null;
@@ -76,17 +81,6 @@ async function ensureTransport(wisp: string) {
 
 /** Boots Scramjet + the service worker + the wisp transport. Idempotent. */
 export async function initProxy(wisp: string): Promise<AnyRecord> {
-  // Polyfill Headers iterator for older environments or specific Scramjet versions
-  if (typeof Headers !== "undefined" && !Headers.prototype[Symbol.iterator]) {
-    Headers.prototype[Symbol.iterator] = function* () {
-      if (typeof this.entries === "function") {
-        for (const entry of this.entries()) {
-          yield entry;
-        }
-      }
-    };
-  }
-
   await ensureScripts();
 
   if (!controllerPromise) {

@@ -1,12 +1,6 @@
 /** Headers polyfill for older environments or specific Scramjet versions */
 if (typeof Headers !== "undefined" && !Headers.prototype[Symbol.iterator]) {
-  Headers.prototype[Symbol.iterator] = function* () {
-    if (typeof this.entries === "function") {
-      for (const entry of this.entries()) {
-        yield entry;
-      }
-    }
-  };
+  Headers.prototype[Symbol.iterator] = Headers.prototype.entries;
 }
 
 importScripts("/proxy/baremux-worker.js");
