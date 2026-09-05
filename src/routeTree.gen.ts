@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ScramjetSplatRouteImport } from './routes/scramjet/$'
 import { Route as ApiPublicGSplatRouteImport } from './routes/api/public/g/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScramjetSplatRoute = ScramjetSplatRouteImport.update({
+  id: '/scramjet/$',
+  path: '/scramjet/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicGSplatRoute = ApiPublicGSplatRouteImport.update({
@@ -25,27 +31,31 @@ const ApiPublicGSplatRoute = ApiPublicGSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/scramjet/$': typeof ScramjetSplatRoute
   '/api/public/g/$': typeof ApiPublicGSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/scramjet/$': typeof ScramjetSplatRoute
   '/api/public/g/$': typeof ApiPublicGSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/scramjet/$': typeof ScramjetSplatRoute
   '/api/public/g/$': typeof ApiPublicGSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/public/g/$'
+  fullPaths: '/' | '/scramjet/$' | '/api/public/g/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/public/g/$'
-  id: '__root__' | '/' | '/api/public/g/$'
+  to: '/' | '/scramjet/$' | '/api/public/g/$'
+  id: '__root__' | '/' | '/scramjet/$' | '/api/public/g/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ScramjetSplatRoute: typeof ScramjetSplatRoute
   ApiPublicGSplatRoute: typeof ApiPublicGSplatRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/scramjet/$': {
+      id: '/scramjet/$'
+      path: '/scramjet/$'
+      fullPath: '/scramjet/$'
+      preLoaderRoute: typeof ScramjetSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/g/$': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ScramjetSplatRoute: ScramjetSplatRoute,
   ApiPublicGSplatRoute: ApiPublicGSplatRoute,
 }
 export const routeTree = rootRouteImport
