@@ -3,13 +3,24 @@
  * from an effect or an event handler, never during render/SSR.
  */
 
+/** Static files are built from MercuryWorkshop/scramjet v2.0.67-alpha.2. */
+export const SCRAMJET_VERSION = "v2.0.67-alpha.2";
 export const SCRAMJET_PREFIX = "/scramjet/";
-export const WISP_SERVERS = [
-  "wss://wisp.mercurywork.shop/",
-  "wss://wisp.ghosty-xyz.workers.dev/",
-  "wss://wisp.sh/wisp/",
+
+/**
+ * Epoxy's transport endpoint. Keep this as an HTTP(S) endpoint so the app
+ * never opens a WebSocket itself; Epoxy handles its supported protocol.
+ */
+export const EPOXY_SERVERS = [
+  "https://wisp.mercurywork.shop/",
+  "https://wisp.ghosty-xyz.workers.dev/",
+  "https://wisp.sh/wisp/",
 ];
-export const DEFAULT_WISP = WISP_SERVERS[0]!;
+export const DEFAULT_EPOXY = EPOXY_SERVERS[0]!;
+
+// Backwards-compatible names for the settings UI.
+export const WISP_SERVERS = EPOXY_SERVERS;
+export const DEFAULT_WISP = DEFAULT_EPOXY;
 
 type AnyRecord = Record<string, unknown>;
 
@@ -63,15 +74,10 @@ async function ensureTransport(wisp: string) {
       options: unknown[],
     ) => Promise<void>;
 
-    try {
-      // Try Epoxy first
-      await setTransport.call(connection, `${location.origin}/proxy/epoxy.mjs`, [{ wisp }]);
-    } catch (e) {
-      console.warn("Epoxy failed, trying Libcurl", e);
-      // Fallback to Libcurl
-      await setTransport.call(connection, `${location.origin}/proxy/libcurl.mjs`, [{ wisp }]);
-    }
-    
+    // Use the Epoxy transport exclusively. Libcurl is intentionally not used:
+    // it falls back to the browser WebSocket path in older BareMux builds.
+    await setTransport.call(connection, `${location.origin}/proxy/epoxy.mjs`, [{ wisp }]);
+
     currentWisp = wisp;
   } catch (err) {
     console.error("Failed to ensure transport:", err);
